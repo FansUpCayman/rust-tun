@@ -17,9 +17,9 @@ use std::net::Ipv4Addr;
 use std::ptr;
 
 #[cfg(any(target_os = "macos", target_os = "ios"))]
-use libc::{c_uchar, c_uint};
-#[cfg(target_os = "linux")]
-use libc::{c_uint, c_ushort};
+use libc::c_uchar;
+#[cfg(any(target_os = "linux", target_os = "android"))]
+use libc::c_ushort;
 
 use libc::AF_INET as _AF_INET;
 use libc::{in_addr, sockaddr, sockaddr_in};
@@ -30,7 +30,7 @@ use crate::error::*;
 #[derive(Copy, Clone)]
 pub struct SockAddr(sockaddr_in);
 
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", target_os = "android"))]
 const AF_INET: c_ushort = _AF_INET as c_ushort;
 
 #[cfg(any(target_os = "macos", target_os = "ios"))]
@@ -59,11 +59,12 @@ impl SockAddr {
 
 impl From<Ipv4Addr> for SockAddr {
     fn from(ip: Ipv4Addr) -> SockAddr {
-        let parts = ip.octets();
+        let octets = ip.octets();
         let mut addr = unsafe { mem::zeroed::<sockaddr_in>() };
 
         addr.sin_family = AF_INET;
         addr.sin_port = 0;
+<<<<<<< HEAD
 
         #[cfg(not(any(target_arch = "mips", target_arch = "mips64")))]
         {
@@ -84,6 +85,11 @@ impl From<Ipv4Addr> for SockAddr {
                     | (parts[3] as c_uint),
             };
         }
+=======
+        addr.sin_addr = in_addr {
+            s_addr: u32::from_ne_bytes(octets),
+        };
+>>>>>>> eyco/master
 
         SockAddr(addr)
     }
@@ -92,7 +98,9 @@ impl From<Ipv4Addr> for SockAddr {
 impl Into<Ipv4Addr> for SockAddr {
     fn into(self) -> Ipv4Addr {
         let ip = self.0.sin_addr.s_addr;
+        let [a, b, c, d] = ip.to_ne_bytes();
 
+<<<<<<< HEAD
         #[cfg(not(any(target_arch = "mips", target_arch = "mips64")))]
         {
             Ipv4Addr::new(
@@ -112,6 +120,9 @@ impl Into<Ipv4Addr> for SockAddr {
                 ((ip) & 0xff) as u8,
             )
         }
+=======
+        Ipv4Addr::new(a, b, c, d)
+>>>>>>> eyco/master
     }
 }
 

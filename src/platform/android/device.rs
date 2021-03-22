@@ -23,7 +23,7 @@ use crate::device::Device as D;
 use crate::error::*;
 use crate::platform::posix::{self, Fd};
 
-/// A TUN device for iOS.
+/// A TUN device for Android.
 pub struct Device {
     queue: Queue,
 }
@@ -35,7 +35,7 @@ impl Device {
             Some(raw_fd) => raw_fd,
             _ => return Err(Error::InvalidConfig),
         };
-        let mut device = unsafe {
+        let device = {
             let tun = Fd::new(fd).map_err(|_| io::Error::last_os_error())?;
 
             Device {
@@ -160,8 +160,8 @@ pub struct Queue {
 
 impl Queue {
     pub fn has_packet_information(&self) -> bool {
-        // on ios this is always the case
-        true
+        // on Android this is always the case
+        false
     }
 
     #[cfg(feature = "async")]
