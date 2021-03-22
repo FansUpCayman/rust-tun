@@ -64,32 +64,9 @@ impl From<Ipv4Addr> for SockAddr {
 
         addr.sin_family = AF_INET;
         addr.sin_port = 0;
-<<<<<<< HEAD
-
-        #[cfg(not(any(target_arch = "mips", target_arch = "mips64")))]
-        {
-            addr.sin_addr = in_addr {
-                s_addr: ((parts[3] as c_uint) << 24)
-                    | ((parts[2] as c_uint) << 16)
-                    | ((parts[1] as c_uint) << 8)
-                    | (parts[0] as c_uint),
-            };
-        }
-
-        #[cfg(any(target_arch = "mips", target_arch = "mips64"))]
-        {
-            addr.sin_addr = in_addr {
-                s_addr: (parts[0] as c_uint) << 24
-                    | ((parts[1] as c_uint) << 16)
-                    | ((parts[2] as c_uint) << 8)
-                    | (parts[3] as c_uint),
-            };
-        }
-=======
         addr.sin_addr = in_addr {
             s_addr: u32::from_ne_bytes(octets),
         };
->>>>>>> eyco/master
 
         SockAddr(addr)
     }
@@ -100,29 +77,7 @@ impl Into<Ipv4Addr> for SockAddr {
         let ip = self.0.sin_addr.s_addr;
         let [a, b, c, d] = ip.to_ne_bytes();
 
-<<<<<<< HEAD
-        #[cfg(not(any(target_arch = "mips", target_arch = "mips64")))]
-        {
-            Ipv4Addr::new(
-                ((ip) & 0xff) as u8,
-                ((ip >> 8) & 0xff) as u8,
-                ((ip >> 16) & 0xff) as u8,
-                ((ip >> 24) & 0xff) as u8,
-            )
-        }
-
-        #[cfg(any(target_arch = "mips", target_arch = "mips64"))]
-        {
-            Ipv4Addr::new(
-                ((ip >> 24) & 0xff) as u8,
-                ((ip >> 16) & 0xff) as u8,
-                ((ip >> 8) & 0xff) as u8,
-                ((ip) & 0xff) as u8,
-            )
-        }
-=======
         Ipv4Addr::new(a, b, c, d)
->>>>>>> eyco/master
     }
 }
 
